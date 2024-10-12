@@ -16,4 +16,26 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+  public static class SwerveConstants {
+    public static final double gearRatio1st = 14/50;
+    public static final double gearRatio2nd = 27/17;
+    public static final double gearRatio3rd = 15/45;
+    public static final double kWheelDiameterMeters = Units.inchesToMeters(4); // meters
+
+    public static final double kDrivingEncoderPositionFactor = kWheelDiameterMeters/(gearRatio1st*gearRatio2nd*gearRatio3rd);
+    public static final double kDrivingEncoderVelocityFactor = kDrivingEncoderPositionFactor/60; // meters per second
+    
+    public static final double driveGainP = 1;
+    public static final double driveGainI = 0;
+    public static final double driveGainD = 0;
+
+    public static final double turnGainP = 0.3;
+    public static final double turnGainI = 0;
+    public static final double turnGainD = 0;
+
+    public static final double kAngleEncoderResolution = 4096;
+
+    
+  }
 }
