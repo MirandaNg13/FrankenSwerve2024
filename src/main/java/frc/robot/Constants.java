@@ -39,7 +39,25 @@ public final class Constants {
     
   }
 
-  public static class ControlSystem {
-  
+public static class ControlSystem {
+    // Driving motor CAN IDs
+    public static final int kLeftFrontDrive = 2;
+    public static final int kLeftBackDrive = 4;
+    public static final int kRightFrontDrive = 1;
+    public static final int kRightBackDrive = 3;
+    // Turning motors
+    public static final int kLeftFrontTurn = 10;
+    public static final int kLeftBackTurn = 14;
+    public static final int kRightFrontTurn = 13;
+    public static final int kRightBackTurn = 15;
+// no idea if I should swap the A and Bs.
+    public static final int kLFturnA = 2;
+    public static final int kLFturnB = 3;
+    public static final int kLBturnA = 0;
+    public static final int kLBturnB = 1;
+    public static final int kRFturnA = 6;
+    public static final int kRFturnB = 7;
+    public static final int kRBturnA = 4;
+    public static final int kRBturnB = 5;
   }
 }
