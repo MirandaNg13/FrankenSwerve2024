@@ -25,6 +25,9 @@ public final class Constants {
 
     public static final double kDrivingEncoderPositionFactor = kWheelDiameterMeters/(gearRatio1st*gearRatio2nd*gearRatio3rd);
     public static final double kDrivingEncoderVelocityFactor = kDrivingEncoderPositionFactor/60; // meters per second
+
+    public static final double kTurningEncoderPositionFactor = kWheelDiameterMeters/(gearRatio1st*gearRatio2nd*gearRatio3rd);
+    public static final double kTurningEncoderVelocityFactor = kDrivingEncoderPositionFactor/60; // meters per second
     
     public static final double driveGainP = 1;
     public static final double driveGainI = 0;

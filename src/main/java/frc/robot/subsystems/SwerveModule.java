@@ -66,12 +66,18 @@ public class SwerveModule extends SubsystemBase {
     m_turningEncoder = new CANCoderJNI();
     m_turningPIDController = m_turningMotor.getPIDController();
     m_turningPIDController.setFeedbackDevice(m_turningEncoder);
+    m_turningMotor.restoreFactoryDefaults();
 
     // Apply position and velocity conversion factors for the driving encoder. The
     // native units for position and velocity are rotations and RPM, respectively,
     // but we want meters and meters per second to use with WPILib's swerve APIs.
     m_driveEncoder.setPositionConversionFactor(SwerveConstants.kDrivingEncoderPositionFactor);
     m_driveEncoder.setVelocityConversionFactor(SwerveConstants.kDrivingEncoderVelocityFactor);
+
+    m_turningEncoder.setPositionConversionFactor(SwerveConstants.kTurningEncoderPositionFactor);
+    m_turningEncoder.setVelocityConversionFactor(SwerveConstants.kTurningEncoderVelocityFactor);
+
+    m_turningEncoder.setInverted(ModuleConstants.kTurningEncoderInverted);
 
     // Set the PID gains for the driving motor. 
     // May need to tune.
@@ -81,15 +87,32 @@ public class SwerveModule extends SubsystemBase {
     m_drivePIDController.setFF(0);
     m_drivePIDController.setOutputRange(-1, 1); 
 
+     // Set the PID gains for the turning motor. Note these are example gains, and you
+    // may need to tune them for your own robot!
+    m_turningPIDController.setP(SwerveConstants.turnGainP);
+    m_turningPIDController.setI(SwerveConstants.turnGainI);
+    m_turningPIDController.setD(SwerveConstants.turnGainD);
+    m_turningPIDController.setFF(0);
+    m_turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
+        ModuleConstants.kTurningMaxOutput);
 
-        // Set the distance (in this case, angle) in radians per pulse for the turning encoder.
+
+    // Set the distance (in this case, angle) in radians per pulse for the turning encoder.
     // This is the the angle through an entire rotation (2 * pi) divided by the
     // encoder resolution.
-    m_turningEncoder.setDistancePerPulse(2 * Math.PI / SwerveConstants.kAngleEncoderResolution);
+    //m_turningEncoder.setDistancePerPulse(2 * Math.PI / SwerveConstants.kAngleEncoderResolution);
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
-    m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    //m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+
+    // Enable PID wrap around for the turning motor. This will allow the PID
+    // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
+    // to 10 degrees will go through 0 rather than the other direction which is a
+    // longer route.
+    m_turningPIDController.setPositionPIDWrappingEnabled(true);
+    m_turningPIDController.setPositionPIDWrappingMinInput(ModuleConstants.kTurningEncoderPositionPIDMinInput);
+    m_turningPIDController.setPositionPIDWrappingMaxInput(ModuleConstants.kTurningEncoderPositionPIDMaxInput);
 
     m_chassisAngularOffset = chassisAngularOffset;
     m_desiredState.angle = new Rotation2d(m_turningEncoder.getDistance());
@@ -103,27 +126,37 @@ public class SwerveModule extends SubsystemBase {
    */
   public void setDesiredState(SwerveModuleState desiredState) {
     
-    var encoderRotation = new Rotation2d(m_turningEncoder.getDistance());
+    //var encoderRotation = new Rotation2d(m_turningEncoder.getDistance());
  
     // Optimize the reference state to avoid spinning further than 90 degrees
-    SwerveModuleState state = SwerveModuleState.optimize(desiredState, encoderRotation);
+    //SwerveModuleState state = SwerveModuleState.optimize(desiredState, encoderRotation);
 
     // Scale speed by cosine of angle error. This scales down movement perpendicular to the desired
     // direction of travel that can occur when modules change directions. This results in smoother
     // driving.
-    state.speedMetersPerSecond *= state.angle.minus(encoderRotation).getCos();
+    //state.speedMetersPerSecond *= state.angle.minus(encoderRotation).getCos();
+
+    
+    SwerveModuleState correctedDesiredState = new SwerveModuleState();
+    correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
+    correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(m_chassisAngularOffset));
+    // Optimize the reference state to avoid spinning further than 90 degrees.
+    SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
+        new Rotation2d(m_turningEncoder.getPosition()));
 
    
     // Command driving and turning SPARKS MAX towards their respective setpoints.
     m_drivePIDController.setReference(state.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+    m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
+/*
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
         m_turningPIDController.calculate(m_turningEncoder.getDistance(), state.angle.getRadians());
 
     // Calculate the turning motor output from the turning PID controller.
     //m_driveMotor.set(driveOutput);
-    m_turningMotor.set(turnOutput);
+    m_turningMotor.set(turnOutput);*/
     
     m_desiredState = desiredState;
     
@@ -132,7 +165,7 @@ public class SwerveModule extends SubsystemBase {
   /** Zeroes all the SwerveModule encoders. */
   public void resetEncoders() {
       m_driveEncoder.setPosition(0);
-      m_turningEncoder.reset();
+      //m_turningEncoder.reset();
   }
 
   public int TurnOutput() {
