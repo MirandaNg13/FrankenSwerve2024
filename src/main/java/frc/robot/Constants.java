@@ -39,6 +39,13 @@ public final class Constants {
     
   }
 
+  public static class DriveConstants {
+    public static final double robotWidth = Units.inchesToMeters(37);
+    public static final double robothLength = Units.inchesToMeters(37);
+    public static final double WheelYdist = robotLength*0.5;
+    public static final double WheelXdist = robotWidth*0.5;
+  }
+
 public static class ControlSystem {
     // Driving motor CAN IDs
     public static final int kLeftFrontDrive = 2;
