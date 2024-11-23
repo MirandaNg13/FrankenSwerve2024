@@ -3,6 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -26,8 +29,8 @@ public final class Constants {
     public static final double kDrivingEncoderPositionFactor = kWheelDiameterMeters/(gearRatio1st*gearRatio2nd*gearRatio3rd);
     public static final double kDrivingEncoderVelocityFactor = kDrivingEncoderPositionFactor/60; // meters per second
 
-    public static final double kTurningEncoderPositionFactor = kWheelDiameterMeters/(gearRatio1st*gearRatio2nd*gearRatio3rd);
-    public static final double kTurningEncoderVelocityFactor = kDrivingEncoderPositionFactor/60; // meters per second
+    public static final double kTurningEncoderPositionFactor = (2 * Math.PI); //position in radians
+    public static final double kTurningEncoderVelocityFactor = kTurningEncoderPositionFactor/60; // meters per second
     
     public static final double driveGainP = 1;
     public static final double driveGainI = 0;
@@ -38,15 +41,32 @@ public final class Constants {
     public static final double turnGainD = 0;
 
     public static final double kAngleEncoderResolution = 4096;
-
-    
+    public static final boolean kTurningEncoderInverted = true;
+    public static final double kTurningMinOutput = -1;
+    public static final double kTurningMaxOutput = 1;
+    public static final double kTurningEncoderPositionPIDMinInput = -1;
+    public static final double kTurningEncoderPositionPIDMaxInput = 1;
   }
 
   public static class DriveConstants {
     public static final double robotWidth = Units.inchesToMeters(37);
-    public static final double robothLength = Units.inchesToMeters(37);
+    public static final double robotLength = Units.inchesToMeters(37);
     public static final double WheelYdist = robotLength*0.5;
     public static final double WheelXdist = robotWidth*0.5;
+
+    public static final double kFrontLeftChassisAngularOffset = 0;
+    public static final double kFrontRightChassisAngularOffset = 0;
+    public static final double kBackLeftChassisAngularOffset = 0;
+    public static final double kBackRightChassisAngularOffset = 0;
+
+    /*public static final SwerveDriveKinematics kswerveDriveKinematics = new SwerveDriveKinematics(
+      new Translation2d(WheelXdist, WheelYdist),
+      new Translation2d(WheelXdist, -WheelYdist),
+      new Translation2d(-WheelXdist, WheelYdist),
+      new Translation2d(-WheelXdist, -WheelYdist));*/
+
+    public static final double kMaxSpeed = 5;
+    public static final double kMaxAngularSpeed = 1;
   }
 
 public static class ControlSystem {
@@ -60,14 +80,10 @@ public static class ControlSystem {
     public static final int kLeftBackTurn = 14;
     public static final int kRightFrontTurn = 13;
     public static final int kRightBackTurn = 15;
-// no idea if I should swap the A and Bs.
-    public static final int kLFturnA = 2;
-    public static final int kLFturnB = 3;
-    public static final int kLBturnA = 0;
-    public static final int kLBturnB = 1;
-    public static final int kRFturnA = 6;
-    public static final int kRFturnB = 7;
-    public static final int kRBturnA = 4;
-    public static final int kRBturnB = 5;
+    // CANCoder Can IDs for tunring encoders
+    public static final int kLFturn = 5;
+    public static final int kLBturn = 6;
+    public static final int kRFturn = 7;
+    public static final int kRBturn = 8;
   }
 }

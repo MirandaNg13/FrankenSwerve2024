@@ -19,49 +19,45 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.ADIS16448_IMU;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
+//import com.kauailabs.navx.frc.AHRS;
+//import edu.wpi.first.wpilibj.SPI;
 
 
 public class DriveTrain extends SubsystemBase {
   /** Creates a new Drive Train Subsystem. */
 
-  private final Translation2d m_frontLeftLocation = new Translation2d(WheelXdist, WheelYdist);
-  private final Translation2d m_frontRightLocation = new Translation2d(WheelXdist, -WheelYdist);
-  private final Translation2d m_backLeftLocation = new Translation2d(-WheelXdist, WheelYdist);
-  private final Translation2d m_backRightLocation = new Translation2d(-WheelXdist, -WheelYdist);
+  private final Translation2d m_frontLeftLocation = new Translation2d(DriveConstants.WheelXdist, DriveConstants.WheelYdist);
+  private final Translation2d m_frontRightLocation = new Translation2d(DriveConstants.WheelXdist, -DriveConstants.WheelYdist);
+  private final Translation2d m_backLeftLocation = new Translation2d(-DriveConstants.WheelXdist, DriveConstants.WheelYdist);
+  private final Translation2d m_backRightLocation = new Translation2d(-DriveConstants.WheelXdist, -DriveConstants.WheelYdist);
 
   private final SwerveModule m_frontLeft= new SwerveModule(
     ControlSystem.kLeftFrontDrive,
     ControlSystem.kLeftFrontTurn, 
-    ControlSystem.kLFturnA, 
-    ControlSystem.kLFturnB,
+    ControlSystem.kLFturn, 
     DriveConstants.kFrontLeftChassisAngularOffset);
 
   private final SwerveModule m_frontRight = new SwerveModule(
     ControlSystem.kRightFrontDrive,
     ControlSystem.kRightFrontTurn, 
-    ControlSystem.kRFturnA, 
-    ControlSystem.kRFturnB,
+    ControlSystem.kRFturn,
     DriveConstants.kFrontRightChassisAngularOffset);
 
   private final SwerveModule m_backLeft = new SwerveModule(
     ControlSystem.kLeftBackDrive,
     ControlSystem.kLeftBackTurn, 
-    ControlSystem.kLBturnA, 
-    ControlSystem.kLBturnB,
+    ControlSystem.kLBturn,
     DriveConstants.kBackLeftChassisAngularOffset);
 
   private final SwerveModule m_backRight = new SwerveModule(
     ControlSystem.kRightBackDrive,
     ControlSystem.kRightBackTurn, 
-    ControlSystem.kRBturnA, 
-    ControlSystem.kRBturnB,
+    ControlSystem.kRBturn,
     DriveConstants.kBackRightChassisAngularOffset);
 
 
-  //private final ADIS16448_IMU m_imu = new ADIS16448_IMU();
-  private final AHRS m_imu = new AHRS(SPI.Port.kMXP);
+  private final ADIS16448_IMU m_imu = new ADIS16448_IMU();
+  //private final AHRS m_imu = new AHRS(SPI.Port.kMXP);
   
     /***********************************************************************
      * navX-MXP: - Communication via RoboRIO MXP (SPI, I2C) and USB. - See

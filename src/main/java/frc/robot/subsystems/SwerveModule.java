@@ -12,8 +12,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.AbsoluteEncoder;
-import com.ctre.phoenix.sensors.CANCoderJNI;
-import com.revrobotics.SparkMaxPIDController;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -29,10 +29,10 @@ public class SwerveModule extends SubsystemBase {
   private final CANSparkMax m_turningMotor;
 
   private final RelativeEncoder m_driveEncoder;
-  private final AbsoluteEncoder m_turningEncoder;
+  private final CANCoder m_turningEncoder;
 
-  private final SparkMaxPIDController m_drivePIDController;
-  private final SparkMaxPIDController m_turningPIDController;
+  private final SparkPIDController m_drivePIDController;
+  private final SparkPIDController m_turningPIDController;
 
   private int m_driveMotorChannel; //for debugging
 
@@ -63,7 +63,7 @@ public class SwerveModule extends SubsystemBase {
 
     //setup turning motor info
     m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
-    m_turningEncoder = new CANCoderJNI();
+    m_turningEncoder = new CANCoder(turningEncoderChannel);
     m_turningPIDController = m_turningMotor.getPIDController();
     m_turningPIDController.setFeedbackDevice(m_turningEncoder);
     m_turningMotor.restoreFactoryDefaults();
@@ -77,7 +77,7 @@ public class SwerveModule extends SubsystemBase {
     m_turningEncoder.setPositionConversionFactor(SwerveConstants.kTurningEncoderPositionFactor);
     m_turningEncoder.setVelocityConversionFactor(SwerveConstants.kTurningEncoderVelocityFactor);
 
-    m_turningEncoder.setInverted(ModuleConstants.kTurningEncoderInverted);
+    m_turningEncoder.setInverted(SwerveConstants.kTurningEncoderInverted);
 
     // Set the PID gains for the driving motor. 
     // May need to tune.
@@ -93,8 +93,8 @@ public class SwerveModule extends SubsystemBase {
     m_turningPIDController.setI(SwerveConstants.turnGainI);
     m_turningPIDController.setD(SwerveConstants.turnGainD);
     m_turningPIDController.setFF(0);
-    m_turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
-        ModuleConstants.kTurningMaxOutput);
+    m_turningPIDController.setOutputRange(SwerveConstants.kTurningMinOutput,
+        SwerveConstants.kTurningMaxOutput);
 
 
     // Set the distance (in this case, angle) in radians per pulse for the turning encoder.
@@ -111,11 +111,11 @@ public class SwerveModule extends SubsystemBase {
     // to 10 degrees will go through 0 rather than the other direction which is a
     // longer route.
     m_turningPIDController.setPositionPIDWrappingEnabled(true);
-    m_turningPIDController.setPositionPIDWrappingMinInput(ModuleConstants.kTurningEncoderPositionPIDMinInput);
-    m_turningPIDController.setPositionPIDWrappingMaxInput(ModuleConstants.kTurningEncoderPositionPIDMaxInput);
+    m_turningPIDController.setPositionPIDWrappingMinInput(SwerveConstants.kTurningEncoderPositionPIDMinInput);
+    m_turningPIDController.setPositionPIDWrappingMaxInput(SwerveConstants.kTurningEncoderPositionPIDMaxInput);
 
     m_chassisAngularOffset = chassisAngularOffset;
-    m_desiredState.angle = new Rotation2d(m_turningEncoder.getDistance());
+    m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
     m_driveEncoder.setPosition(0);
   }
 
@@ -146,7 +146,7 @@ public class SwerveModule extends SubsystemBase {
 
    
     // Command driving and turning SPARKS MAX towards their respective setpoints.
-    m_drivePIDController.setReference(state.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+    m_drivePIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
     m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
 /*
@@ -162,14 +162,23 @@ public class SwerveModule extends SubsystemBase {
     
   }
      
+  public SwerveModulePosition getPosition() {
+    // Apply chassis angular offset to the encoder position to get the position
+    // relative to the chassis.
+    return new SwerveModulePosition(
+        m_driveEncoder.getPosition(),
+        new Rotation2d(m_turningEncoder.getPosition() - m_chassisAngularOffset));
+  }
+
+
   /** Zeroes all the SwerveModule encoders. */
   public void resetEncoders() {
       m_driveEncoder.setPosition(0);
       //m_turningEncoder.reset();
   }
 
-  public int TurnOutput() {
-    int turn = m_turningEncoder.get();
+  public double TurnOutput() {
+    double turn = m_turningEncoder.getPosition();
     return turn;
   }
 
@@ -184,7 +193,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public double wheelAngle() {
-    var angle = new Rotation2d(m_turningEncoder.getDistance());
+    var angle = new Rotation2d(m_turningEncoder.getPosition());
     double angleDeg = angle.getDegrees();
     return angleDeg;
   }
