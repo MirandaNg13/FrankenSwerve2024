@@ -19,13 +19,14 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.ADIS16448_IMU;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+
 public class DriveTrain extends SubsystemBase {
   /** Creates a new Drive Train Subsystem. */
 
-  private final Translation2d m_frontLeftLocation = new Translation2d(0.292, 0.267);
-  private final Translation2d m_frontRightLocation = new Translation2d(0.292, -0.267);
-  private final Translation2d m_backLeftLocation = new Translation2d(-0.292, 0.267);
-  private final Translation2d m_backRightLocation = new Translation2d(-0.292, -0.267);
+  private final Translation2d m_frontLeftLocation = new Translation2d(WheelXdist, WheelYdist);
+  private final Translation2d m_frontRightLocation = new Translation2d(WheelXdist, -WheelYdist);
+  private final Translation2d m_backLeftLocation = new Translation2d(-WheelXdist, WheelYdist);
+  private final Translation2d m_backRightLocation = new Translation2d(-WheelXdist, -WheelYdist);
 
   private final SwerveModule m_frontLeft= new SwerveModule(
     ControlSystem.kLeftFrontDrive,
@@ -159,10 +160,10 @@ public class DriveTrain extends SubsystemBase {
   }
     
   public void resetEncoders() {
-    m_frontLeft.resetEncoders();
-    m_backLeft.resetEncoders();
-    m_frontRight.resetEncoders();
-    m_backRight.resetEncoders();
+    //m_frontLeft.resetEncoders();
+    //m_backLeft.resetEncoders();
+    //m_frontRight.resetEncoders();
+    //m_backRight.resetEncoders();
   }
 
   // Measure turing encoder counts
