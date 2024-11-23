@@ -19,6 +19,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.ADIS16448_IMU;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SPI;
+
 
 public class DriveTrain extends SubsystemBase {
   /** Creates a new Drive Train Subsystem. */
@@ -57,8 +60,22 @@ public class DriveTrain extends SubsystemBase {
     DriveConstants.kBackRightChassisAngularOffset);
 
 
-  private final ADIS16448_IMU m_imu = new ADIS16448_IMU();
-
+  //private final ADIS16448_IMU m_imu = new ADIS16448_IMU();
+  private final AHRS m_imu = new AHRS(SPI.Port.kMXP);
+  
+    /***********************************************************************
+     * navX-MXP: - Communication via RoboRIO MXP (SPI, I2C) and USB. - See
+     * http://navx-mxp.kauailabs.com/guidance/selecting-an-interface.
+     * 
+     * navX-Micro: - Communication via I2C (RoboRIO MXP or Onboard) and USB. - See
+     * http://navx-micro.kauailabs.com/guidance/selecting-an-interface.
+     * 
+     * VMX-pi: - Communication via USB. - See
+     * https://vmx-pi.kauailabs.com/installation/roborio-installation/
+     * 
+     * Multiple navX-model devices on a single robot are supported.
+     ************************************************************************/
+    
   
   private final SwerveDriveKinematics m_kinematics =
     new SwerveDriveKinematics(
